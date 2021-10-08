@@ -455,7 +455,7 @@ if __name__ == "__main__":
       else:
         print('No TPU detected. Can be changed under "Runtime/Change runtime type".')
     tf.config.experimental.set_visible_devices([], "GPU")
-      logging.set_verbosity(logging.INFO)
+    logging.set_verbosity(logging.INFO)
 
     print("JAX devices:\n" + "\n".join([repr(d) for d in jax.devices()]))
     print('Current folder content', os.listdir())
