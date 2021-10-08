@@ -447,7 +447,7 @@ if __name__ == "__main__":
       # Google Colab "TPU" runtimes are configured in "2VM mode", meaning that JAX
       # cannot see the TPUs because they're not directly attached. Instead we need to
       # setup JAX to communicate with a second machine that has the TPUs attached.
-      if 'google.colab' in str(get_ipython()) and 'COLAB_TPU_ADDR' in os.environ:
+      if True: #'google.colab' in str(get_ipython()) and 'COLAB_TPU_ADDR' in os.environ:
         import jax
         import jax.tools.colab_tpu
         jax.tools.colab_tpu.setup_tpu()
