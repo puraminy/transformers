@@ -439,6 +439,7 @@ if __name__ == "__main__":
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver %%%%%%%%%%%%%%%%%%%%")
 
     # Handle the repository creation
     if training_args.push_to_hub:
@@ -542,7 +543,9 @@ if __name__ == "__main__":
     # Since we make sure that all sequences are of the same length, no attention_mask is needed.
     def tokenize_function(examples):
         return tokenizer(examples[text_column_name], return_attention_mask=False)
+    
 
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP %%%%%%%%%%%%%%%%%%%%")
     tokenized_datasets = datasets.map(
         tokenize_function,
         batched=True,
@@ -550,6 +553,8 @@ if __name__ == "__main__":
         remove_columns=column_names,
         load_from_cache_file=not data_args.overwrite_cache,
     )
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP %%%%%%%%%%%%%%%%%%%%")
+
 
     # T5-like span masked language modeling will fuse consecutively masked tokens to a single sentinel token.
     # To ensure that the input length is `max_seq_length`, we need to increase the maximum length
@@ -582,12 +587,17 @@ if __name__ == "__main__":
     #
     # To speed up this part, we use multiprocessing. See the documentation of the map method for more information:
     # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.map
+
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP 2 %%%%%%%%%%%%%%%%%%%%")
+
     tokenized_datasets = tokenized_datasets.map(
         group_texts,
         batched=True,
         num_proc=data_args.preprocessing_num_workers,
         load_from_cache_file=not data_args.overwrite_cache,
     )
+
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP 2 %%%%%%%%%%%%%%%%%%%%")
 
     # Enable tensorboard only on the master node
     has_tensorboard = is_tensorboard_available()
@@ -733,6 +743,9 @@ if __name__ == "__main__":
     state = jax_utils.replicate(state)
 
     train_time = 0
+
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before Training %%%%%%%%%%%%%%%%%%%%")
+
     epochs = tqdm(range(num_epochs), desc="Epoch ... ", position=0)
     for epoch in epochs:
         # ======================== Training ================================
