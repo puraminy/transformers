@@ -454,14 +454,14 @@ if __name__ == "__main__":
         print('Connected to TPU.')
       else:
         print('No TPU detected. Can be changed under "Runtime/Change runtime type".')
-    tf.config.experimental.set_visible_devices([], "GPU")
+    #tf.config.experimental.set_visible_devices([], "GPU")
     #logging.set_verbosity(logging.INFO)
-    TPU_WORKER = 'grpc://' + os.environ['TPU_NAME'] # for colab use TPU_NAME if in GCP.
+    #TPU_WORKER = 'grpc://' + os.environ['TPU_NAME'] # for colab use TPU_NAME if in GCP.
 
-    resolver = tf.distribute.cluster_resolver.TPUClusterResolver(TPU_WORKER)
-    tf.config.experimental_connect_to_cluster(resolver)
-    tf.tpu.experimental.initialize_tpu_system(resolver)
-    strategy = tf.distribute.experimental.TPUStrategy(resolver)
+    #resolver = tf.distribute.cluster_resolver.TPUClusterResolver(TPU_WORKER)
+    #tf.config.experimental_connect_to_cluster(resolver)
+    #tf.tpu.experimental.initialize_tpu_system(resolver)
+    #strategy = tf.distribute.experimental.TPUStrategy(resolver)
 
     print("JAX devices:\n" + "\n".join([repr(d) for d in jax.devices()]))
     print('Current folder content', os.listdir())
@@ -773,7 +773,8 @@ if __name__ == "__main__":
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before Training %%%%%%%%%%%%%%%%%%%%")
 
     epochs = tqdm(range(num_epochs), desc="Epoch ... ", position=0)
-    with strategy.scope():
+    #with strategy.scope():
+    if True:
         for epoch in epochs:
             # ======================== Training ================================
             train_start = time.time()
