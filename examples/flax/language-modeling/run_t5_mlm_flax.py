@@ -456,7 +456,7 @@ if __name__ == "__main__":
         print('No TPU detected. Can be changed under "Runtime/Change runtime type".')
     tf.config.experimental.set_visible_devices([], "GPU")
     #logging.set_verbosity(logging.INFO)
-    TPU_WORKER = 'grpc://' + os.environ['COLAB_TPU_ADDR'] # for colab use TPU_NAME if in GCP.
+    TPU_WORKER = 'grpc://' + os.environ['TPU_NAME'] # for colab use TPU_NAME if in GCP.
 
     resolver = tf.distribute.cluster_resolver.TPUClusterResolver(TPU_WORKER)
     tf.config.experimental_connect_to_cluster(resolver)
