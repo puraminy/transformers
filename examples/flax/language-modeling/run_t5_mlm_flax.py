@@ -454,7 +454,7 @@ if __name__ == "__main__":
         print('Connected to TPU.')
       else:
         print('No TPU detected. Can be changed under "Runtime/Change runtime type".')
-    #tf.config.experimental.set_visible_devices([], "GPU")
+    tf.config.experimental.set_visible_devices([], "GPU")
     #logging.set_verbosity(logging.INFO)
     #TPU_WORKER = 'grpc://' + os.environ['TPU_NAME'] # for colab use TPU_NAME if in GCP.
 
