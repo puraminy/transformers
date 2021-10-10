@@ -441,31 +441,31 @@ if __name__ == "__main__":
     # Set seed before initializing model.
     set_seed(training_args.seed)
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 3 %%%%%%%%%%%%%%%%%%%%")
-    USE_TPU = True
+    USE_TPU = False
 
-    if USE_TPU:
-      # Google Colab "TPU" runtimes are configured in "2VM mode", meaning that JAX
-      # cannot see the TPUs because they're not directly attached. Instead we need to
-      # setup JAX to communicate with a second machine that has the TPUs attached.
-      if not training_args.no_cuda: #'google.colab' in str(get_ipython()) and 'COLAB_TPU_ADDR' in os.environ:
-        import jax
-        import jax.tools.colab_tpu
-        jax.tools.colab_tpu.setup_tpu()
-        print('Connected to TPU.')
-      else:
-        print('No TPU detected. Can be changed under "Runtime/Change runtime type".')
-    tf.config.experimental.set_visible_devices([], "GPU")
-    #logging.set_verbosity(logging.INFO)
-    #TPU_WORKER = 'grpc://' + os.environ['TPU_NAME'] # for colab use TPU_NAME if in GCP.
+    if training_args.no_cuda:
+        # Google Colab "TPU" runtimes are configured in "2VM mode", meaning that JAX
+        # cannot see the TPUs because they're not directly attached. Instead we need to
+        # setup JAX to communicate with a second machine that has the TPUs attached.
+        if True: #'google.colab' in str(get_ipython()) and 'COLAB_TPU_ADDR' in os.environ:
+            import jax
+            import jax.tools.colab_tpu
+            jax.tools.colab_tpu.setup_tpu()
+            print('Connected to TPU.')
+        else:
+            print('No TPU detected. Can be changed under "Runtime/Change runtime type".')
+        tf.config.experimental.set_visible_devices([], "GPU")
+        #logging.set_verbosity(logging.INFO)
+        #TPU_WORKER = 'grpc://' + os.environ['TPU_NAME'] # for colab use TPU_NAME if in GCP.
 
-    #resolver = tf.distribute.cluster_resolver.TPUClusterResolver(TPU_WORKER)
-    #tf.config.experimental_connect_to_cluster(resolver)
-    #tf.tpu.experimental.initialize_tpu_system(resolver)
-    #strategy = tf.distribute.experimental.TPUStrategy(resolver)
+        #resolver = tf.distribute.cluster_resolver.TPUClusterResolver(TPU_WORKER)
+        #tf.config.experimental_connect_to_cluster(resolver)
+        #tf.tpu.experimental.initialize_tpu_system(resolver)
+        #strategy = tf.distribute.experimental.TPUStrategy(resolver)
 
-    print("JAX devices:\n" + "\n".join([repr(d) for d in jax.devices()]))
-    print('Current folder content', os.listdir())
-            # Handle the repository creation
+        print("JAX devices:\n" + "\n".join([repr(d) for d in jax.devices()]))
+        print('Current folder content', os.listdir())
+                # Handle the repository creation
     if training_args.push_to_hub:
         if training_args.hub_model_id is None:
             repo_name = get_full_repo_name(
@@ -474,8 +474,8 @@ if __name__ == "__main__":
         else:
             repo_name = training_args.hub_model_id
         repo = Repository(training_args.output_dir, clone_from=repo_name)
-            
-            
+
+
 
     # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
     # or just provide the name of one of the public datasets available on the hub at https://huggingface.co/datasets/
