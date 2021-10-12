@@ -40,6 +40,7 @@ import optax
 from flax import jax_utils, traverse_util
 from flax.training import train_state
 from flax.training.common_utils import get_metrics, onehot, shard
+from flax.serialization import to_bytes, from_bytes
 from huggingface_hub import Repository
 from transformers import (
     CONFIG_MAPPING,
