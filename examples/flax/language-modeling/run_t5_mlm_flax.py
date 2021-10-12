@@ -24,6 +24,7 @@ import logging
 import os
 import sys
 import time
+import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -405,19 +406,19 @@ def write_eval_metric(summary_writer, eval_metrics, step):
 
 def save_checkpoint(model, save_dir, state, cur_step: int, with_opt: bool = True, push_to_hub: bool = False):
     state = jax_utils.unreplicate(state)
-    if with_opt:
-        logger.info(f'Saving optimizer and training state in {save_dir}...')
-        with open(os.path.join(save_dir, "opt_state.msgpack"), "wb") as f:
-            f.write(to_bytes(state.opt_state))
-        with open(os.path.join(save_dir, "training_state.json"), "w") as f:
-            json.dump({"step": state.step.item()}, f)
-    logger.info(f'Saving model in {save_dir} {"and pushing it to HF Hub" if push_to_hub else ""}')
+    logger.info(f'Saving model in {save_dir} {"and pushing it to HF Hub" if push_to_hub else ""}')    
     model.save_pretrained(
         save_dir,
         params=state.params,
         push_to_hub=push_to_hub,
         commit_message=f"Saving weights and logs of step {cur_step}",
     )    
+    if with_opt:
+        logger.info(f'Saving optimizer and training state in {save_dir}...')
+        with open(os.path.join(save_dir, "opt_state.msgpack"), "wb") as f:
+            f.write(to_bytes(state.opt_state))
+        with open(os.path.join(save_dir, "training_state.json"), "w") as f:
+            json.dump({"step": state.step.item()}, f)
 
 def restore_checkpoint(load_dir, state):
     logger.info(f"Restoring checkpoint from {load_dir}")
