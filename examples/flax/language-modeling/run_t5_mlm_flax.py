@@ -400,6 +400,35 @@ def write_eval_metric(summary_writer, eval_metrics, step):
     for metric_name, value in eval_metrics.items():
         summary_writer.scalar(f"eval_{metric_name}", value, step)
 
+# %%%%%%%%%%%% my functions to save and restore check points
+
+def save_checkpoint(model, save_dir, state, cur_step: int, with_opt: bool = True, push_to_hub: bool = False):
+    state = jax_utils.unreplicate(state)
+    if with_opt:
+        logger.info(f'Saving optimizer and training state in {save_dir}...')
+        with open(os.path.join(save_dir, "opt_state.msgpack"), "wb") as f:
+            f.write(to_bytes(state.opt_state))
+        with open(os.path.join(save_dir, "training_state.json"), "w") as f:
+            json.dump({"step": state.step.item()}, f)
+    logger.info(f'Saving model in {save_dir} {"and pushing it to HF Hub" if push_to_hub else ""}')
+    model.save_pretrained(
+        save_dir,
+        params=state.params,
+        push_to_hub=push_to_hub,
+        commit_message=f"Saving weights and logs of step {cur_step}",
+    )    
+
+def restore_checkpoint(load_dir, state):
+    logger.info(f"Restoring checkpoint from {load_dir}")
+    with open(os.path.join(load_dir, "flax_model.msgpack"), "rb") as f:
+        params = from_bytes(state.params, f.read())
+    with open(os.path.join(load_dir, "opt_state.msgpack"), "rb") as f:
+        opt_state = from_bytes(state.opt_state, f.read())
+    with open(os.path.join(load_dir, "training_state.json"), "r") as f:
+        training_state = json.load(f)
+    step = training_state["step"]
+    logger.info(f"Checkpoint restored at step {step}")
+    return state.replace(step=step, params=params, opt_state=opt_state), step        
 
 if __name__ == "__main__":
     # See all possible arguments in src/transformers/training_args.py
@@ -775,35 +804,6 @@ if __name__ == "__main__":
     state = jax_utils.replicate(state)
 
     train_time = 0
-    # %%%%%%%%%%%% my functions to save and restore check points
-    
-    def save_checkpoint(model, save_dir, state, cur_step: int, with_opt: bool = True, push_to_hub: bool = False):
-        state = jax_utils.unreplicate(state)
-        if with_opt:
-            logger.info(f'Saving optimizer and training state in {save_dir}...')
-            with open(os.path.join(save_dir, "opt_state.msgpack"), "wb") as f:
-                f.write(to_bytes(state.opt_state))
-            with open(os.path.join(save_dir, "training_state.json"), "w") as f:
-                json.dump({"step": state.step.item()}, f)
-        logger.info(f'Saving model in {save_dir} {"and pushing it to HF Hub" if push_to_hub else ""}')
-        model.save_pretrained(
-            save_dir,
-            params=state.params,
-            push_to_hub=push_to_hub,
-            commit_message=f"Saving weights and logs of step {cur_step}",
-        )    
-        
-    def restore_checkpoint(load_dir, state):
-        logger.info(f"Restoring checkpoint from {load_dir}")
-        with open(os.path.join(load_dir, "flax_model.msgpack"), "rb") as f:
-            params = from_bytes(state.params, f.read())
-        with open(os.path.join(load_dir, "opt_state.msgpack"), "rb") as f:
-            opt_state = from_bytes(state.opt_state, f.read())
-        with open(os.path.join(load_dir, "training_state.json"), "r") as f:
-            training_state = json.load(f)
-        step = training_state["step"]
-        logger.info(f"Checkpoint restored at step {step}")
-        return state.replace(step=step, params=params, opt_state=opt_state), step        
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before Training %%%%%%%%%%%%%%%%%%%%")
 
     epochs = tqdm(range(num_epochs), desc="Epoch ... ", position=0)
