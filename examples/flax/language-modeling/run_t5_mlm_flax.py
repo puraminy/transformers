@@ -440,7 +440,7 @@ if __name__ == "__main__":
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 3 %%%%%%%%%%%%%%%%%%%%")
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 4 %%%%%%%%%%%%%%%%%%%%")
     USE_TPU = False
     if training_args.no_cuda:
         # Google Colab "TPU" runtimes are configured in "2VM mode", meaning that JAX
@@ -825,7 +825,7 @@ if __name__ == "__main__":
             # Gather the indexes for creating the batch and do a training step
             for step, batch_idx in enumerate(tqdm(train_batch_idx, desc="Training...", position=1)):
                 if cur_step < resume_step:
-                continue
+                   continue
 
                 samples = [tokenized_datasets["train"][int(idx)] for idx in batch_idx]
                 model_inputs = data_collator(samples)
