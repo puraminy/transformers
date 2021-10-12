@@ -442,7 +442,6 @@ if __name__ == "__main__":
     set_seed(training_args.seed)
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 3 %%%%%%%%%%%%%%%%%%%%")
     USE_TPU = False
-
     if training_args.no_cuda:
         # Google Colab "TPU" runtimes are configured in "2VM mode", meaning that JAX
         # cannot see the TPUs because they're not directly attached. Instead we need to
@@ -715,8 +714,15 @@ if __name__ == "__main__":
         )
 
     # Setup train state
+    
+
     state = train_state.TrainState.create(apply_fn=model.__call__, params=model.params, tx=optimizer)
 
+    if training_args.resume_from_checkpoint:
+        state, resume_step = restore_checkpoint(training_args.resume_from_checkpoint, state)
+    else:
+        resume_step = 0
+        
     # Define gradient update step fn
     def train_step(state, batch, dropout_rng):
         dropout_rng, new_dropout_rng = jax.random.split(dropout_rng)
@@ -769,7 +775,35 @@ if __name__ == "__main__":
     state = jax_utils.replicate(state)
 
     train_time = 0
-
+    # %%%%%%%%%%%% my functions to save and restore check points
+    
+    def save_checkpoint(model, save_dir, state, cur_step: int, with_opt: bool = True, push_to_hub: bool = False):
+        state = jax_utils.unreplicate(state)
+        if with_opt:
+            logger.info(f'Saving optimizer and training state in {save_dir}...')
+            with open(os.path.join(save_dir, "opt_state.msgpack"), "wb") as f:
+                f.write(to_bytes(state.opt_state))
+            with open(os.path.join(save_dir, "training_state.json"), "w") as f:
+                json.dump({"step": state.step.item()}, f)
+        logger.info(f'Saving model in {save_dir} {"and pushing it to HF Hub" if push_to_hub else ""}')
+        model.save_pretrained(
+            save_dir,
+            params=state.params,
+            push_to_hub=push_to_hub,
+            commit_message=f"Saving weights and logs of step {cur_step}",
+        )    
+        
+    def restore_checkpoint(load_dir, state):
+        logger.info(f"Restoring checkpoint from {load_dir}")
+        with open(os.path.join(load_dir, "flax_model.msgpack"), "rb") as f:
+            params = from_bytes(state.params, f.read())
+        with open(os.path.join(load_dir, "opt_state.msgpack"), "rb") as f:
+            opt_state = from_bytes(state.opt_state, f.read())
+        with open(os.path.join(load_dir, "training_state.json"), "r") as f:
+            training_state = json.load(f)
+        step = training_state["step"]
+        logger.info(f"Checkpoint restored at step {step}")
+        return state.replace(step=step, params=params, opt_state=opt_state), step        
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before Training %%%%%%%%%%%%%%%%%%%%")
 
     epochs = tqdm(range(num_epochs), desc="Epoch ... ", position=0)
@@ -790,6 +824,9 @@ if __name__ == "__main__":
 
             # Gather the indexes for creating the batch and do a training step
             for step, batch_idx in enumerate(tqdm(train_batch_idx, desc="Training...", position=1)):
+                if cur_step < resume_step:
+                continue
+
                 samples = [tokenized_datasets["train"][int(idx)] for idx in batch_idx]
                 model_inputs = data_collator(samples)
 
@@ -843,8 +880,17 @@ if __name__ == "__main__":
                 if cur_step % training_args.save_steps == 0 and cur_step > 0:
                     # save checkpoint after each epoch and push checkpoint to the hub
                     if jax.process_index() == 0:
-                        params = jax.device_get(jax.tree_map(lambda x: x[0], state.params))
-                        model.save_pretrained(training_args.output_dir, params=params)
-                        tokenizer.save_pretrained(training_args.output_dir)
-                        if training_args.push_to_hub:
-                            repo.push_to_hub(commit_message=f"Saving weights and logs of step {cur_step}", blocking=False)
+                        save_checkpoint(
+                            model,
+                            training_args.output_dir,
+                            state,
+                            cur_step,
+                            with_opt=True,
+                            push_to_hub=training_args.push_to_hub
+                        )
+                        #params = jax.device_get(jax.tree_map(lambda x: x[0], state.params))
+                        #model.save_pretrained(training_args.output_dir, params=params)
+                        #tokenizer.save_pretrained(training_args.output_dir)
+                        #if training_args.push_to_hub:
+                        #    repo.push_to_hub(commit_message=f"Saving weights and logs of step {cur_step}", blocking=False)
+                            
