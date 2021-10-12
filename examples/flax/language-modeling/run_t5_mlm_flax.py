@@ -747,7 +747,8 @@ if __name__ == "__main__":
 
     state = train_state.TrainState.create(apply_fn=model.__call__, params=model.params, tx=optimizer)
 
-    if training_args.resume_from_checkpoint:
+    last_opt_state_file = os.path.join(training_args.resume_from_checkpoint, "opt_state.msgpack")
+    if training_args.resume_from_checkpoint and Path(last_opt_state_file).exists():
         state, resume_step = restore_checkpoint(training_args.resume_from_checkpoint, state)
     else:
         resume_step = 0
