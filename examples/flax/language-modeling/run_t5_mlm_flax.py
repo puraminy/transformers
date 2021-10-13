@@ -604,7 +604,7 @@ if __name__ == "__main__":
     
     if False:
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP %%%%%%%%%%%%%%%%%%%%")
-        saved_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map1)
+        saved_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map1")
         cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
 
         if Path(saved_dataset_name).exists():
