@@ -609,7 +609,7 @@ if __name__ == "__main__":
 
         if Path(saved_dataset_name).exists():
             print("loading from ", saved_dataset_path)
-            tokenized_datasets = load_from_disk(saved_dataset_name)
+            tokenized_datasets = load_from_disk(saved_dataset_path)
         else:
             tokenized_datasets = datasets.map(
                 tokenize_function,
@@ -660,7 +660,7 @@ if __name__ == "__main__":
     cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map2.cached")
     if Path(saved_dataset_name).exists():
         print("loading from ", saved_dataset_path)
-        tokenized_datasets = load_from_disk(saved_dataset_name)
+        tokenized_datasets = load_from_disk(saved_dataset_path)
     else:
         tokenized_datasets = tokenized_datasets.map(
             group_texts,
