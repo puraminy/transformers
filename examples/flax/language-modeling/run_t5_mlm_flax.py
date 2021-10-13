@@ -604,8 +604,8 @@ if __name__ == "__main__":
     
     if False:
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP %%%%%%%%%%%%%%%%%%%%")
-        saved_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map1)
-        cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
+        saved_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map1)
+        cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
 
         if Path(saved_dataset_name).exists():
             print("loading from ", saved_dataset_path)
@@ -656,8 +656,8 @@ if __name__ == "__main__":
     # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.map
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP 2 %%%%%%%%%%%%%%%%%%%%")
-    saved_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map2")    
-    cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map2.cached")
+    saved_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map2")    
+    cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map2.cached")
     if Path(saved_dataset_name).exists():
         print("loading from ", saved_dataset_path)
         tokenized_datasets = load_from_disk(saved_dataset_name)
