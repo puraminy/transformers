@@ -605,6 +605,7 @@ if __name__ == "__main__":
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP %%%%%%%%%%%%%%%%%%%%")
     saved_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map1")
     cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
+    cached_val_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_1_val.cached")
 
     if Path(saved_dataset_path).exists():
         print("loading from ", saved_dataset_path)
@@ -616,7 +617,7 @@ if __name__ == "__main__":
             num_proc=data_args.preprocessing_num_workers,
             remove_columns=column_names,
             load_from_cache_file=not data_args.overwrite_cache,
-            cache_file_names = {"train": cached_dataset_path}
+            cache_file_names = {"train": cached_dataset_path, "validation": cached_val_dataset_path}
         )    
         tokenized_datasets.save_to_disk(saved_dataset_path)
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP %%%%%%%%%%%%%%%%%%%%")
@@ -657,6 +658,8 @@ if __name__ == "__main__":
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP 2 %%%%%%%%%%%%%%%%%%%%")
     saved_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map2")    
     cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map2.cached")
+    cached_val_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_2_val.cached")
+    
     if Path(saved_dataset_path).exists():
         print("loading from ", saved_dataset_path)
         tokenized_datasets = load_from_disk(saved_dataset_path)
@@ -666,7 +669,7 @@ if __name__ == "__main__":
             batched=True,
             num_proc=data_args.preprocessing_num_workers,
             load_from_cache_file=not data_args.overwrite_cache,
-            cache_file_names = {"train": cached_dataset_path}
+            cache_file_names = {"train": cached_dataset_path, "validation": cached_val_dataset_path}
         )
         tokenized_datasets.save_to_disk(saved_dataset_path)
 
