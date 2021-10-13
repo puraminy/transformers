@@ -602,24 +602,24 @@ if __name__ == "__main__":
     def tokenize_function(examples):
         return tokenizer(examples[text_column_name], return_attention_mask=False)
     
+    if False:
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP %%%%%%%%%%%%%%%%%%%%")
+        saved_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map1)
+        cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
 
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP %%%%%%%%%%%%%%%%%%%%")
-    saved_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name)
-    cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
-    
-    if Path(saved_dataset_name).exists():
-        print("loading from ", saved_dataset_path)
-        tokenized_datasets = load_from_disk(saved_dataset_name)
-    else:
-        tokenized_datasets = datasets.map(
-            tokenize_function,
-            batched=True,
-            num_proc=data_args.preprocessing_num_workers,
-            remove_columns=column_names,
-            load_from_cache_file=not data_args.overwrite_cache,
-            cache_file_names = {"train": cached_dataset_path}
-        )    
-        tokenized_datasets.save_to_disk(saved_dataset_path)
+        if Path(saved_dataset_name).exists():
+            print("loading from ", saved_dataset_path)
+            tokenized_datasets = load_from_disk(saved_dataset_name)
+        else:
+            tokenized_datasets = datasets.map(
+                tokenize_function,
+                batched=True,
+                num_proc=data_args.preprocessing_num_workers,
+                remove_columns=column_names,
+                load_from_cache_file=not data_args.overwrite_cache,
+                cache_file_names = {"train": cached_dataset_path}
+            )    
+            tokenized_datasets.save_to_disk(saved_dataset_path)
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP %%%%%%%%%%%%%%%%%%%%")
 
 
@@ -656,15 +656,20 @@ if __name__ == "__main__":
     # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.map
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP 2 %%%%%%%%%%%%%%%%%%%%")
-    cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "_map2.cached")
-
-    tokenized_datasets = tokenized_datasets.map(
-        group_texts,
-        batched=True,
-        num_proc=data_args.preprocessing_num_workers,
-        load_from_cache_file=not data_args.overwrite_cache,
-        cache_file_names = {"train": cached_dataset_path}
-    )
+    saved_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map2")    
+    cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map2.cached")
+    if Path(saved_dataset_name).exists():
+        print("loading from ", saved_dataset_path)
+        tokenized_datasets = load_from_disk(saved_dataset_name)
+    else:
+        tokenized_datasets = tokenized_datasets.map(
+            group_texts,
+            batched=True,
+            num_proc=data_args.preprocessing_num_workers,
+            load_from_cache_file=not data_args.overwrite_cache,
+            cache_file_names = {"train": cached_dataset_path}
+        )
+        tokenized_datasets.save_to_disk(saved_dataset_path)
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP 2 %%%%%%%%%%%%%%%%%%%%")
 
