@@ -515,7 +515,9 @@ if __name__ == "__main__":
     # 'text' is found. You can easily tweak this behavior (see below).
     if data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
-        datasets = load_dataset(data_args.dataset_name, data_args.dataset_config_name, cache_dir=model_args.cache_dir)
+        datasets = load_dataset(data_args.dataset_name, 
+                                data_args.dataset_config_name, 
+                                cache_dir=model_args.cache_dir)
 
         if "validation" not in datasets.keys():
             datasets["validation"] = load_dataset(
@@ -602,13 +604,22 @@ if __name__ == "__main__":
     
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP %%%%%%%%%%%%%%%%%%%%")
-    tokenized_datasets = datasets.map(
-        tokenize_function,
-        batched=True,
-        num_proc=data_args.preprocessing_num_workers,
-        remove_columns=column_names,
-        load_from_cache_file=not data_args.overwrite_cache,
-    )
+    saved_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name)
+    cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
+    
+    if Path(saved_dataset_name).exists():
+        print("loading from ", saved_dataset_path)
+        tokenized_datasets = load_from_disk(saved_dataset_name)
+    else:
+        tokenized_datasets = datasets.map(
+            tokenize_function,
+            batched=True,
+            num_proc=data_args.preprocessing_num_workers,
+            remove_columns=column_names,
+            load_from_cache_file=not data_args.overwrite_cache,
+            cache_file_names = {"train": cached_dataset_path}
+        )    
+        tokenized_datasets.save_to_disk(saved_dataset_path)
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP %%%%%%%%%%%%%%%%%%%%")
 
 
@@ -645,12 +656,14 @@ if __name__ == "__main__":
     # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.map
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before MAP 2 %%%%%%%%%%%%%%%%%%%%")
+    cached_dataset_path = os.join(model_args.cache_dir,data_args.dataset_name, "_map2.cached")
 
     tokenized_datasets = tokenized_datasets.map(
         group_texts,
         batched=True,
         num_proc=data_args.preprocessing_num_workers,
         load_from_cache_file=not data_args.overwrite_cache,
+        cache_file_names = {"train": cached_dataset_path}
     )
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP 2 %%%%%%%%%%%%%%%%%%%%")
