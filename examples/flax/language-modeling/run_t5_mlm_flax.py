@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import numpy as np
-from datasets import load_dataset
+from datasets import load_dataset, load_from_disk
 from tqdm import tqdm
 import tensorflow as tf
 
