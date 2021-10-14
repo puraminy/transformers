@@ -607,7 +607,7 @@ if __name__ == "__main__":
     cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_1.cached")
     cached_val_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_1_val.cached")
 
-    if Path(saved_dataset_path).exists():
+    if False: #Path(saved_dataset_path).exists():
         print("loading from ", saved_dataset_path)
         tokenized_datasets = load_from_disk(saved_dataset_path)
     else:
@@ -660,7 +660,7 @@ if __name__ == "__main__":
     cached_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map2.cached")
     cached_val_dataset_path = os.path.join(model_args.cache_dir,data_args.dataset_name, "map_2_val.cached")
     
-    if Path(saved_dataset_path).exists():
+    if False: #Path(saved_dataset_path).exists():
         print("loading from ", saved_dataset_path)
         tokenized_datasets = load_from_disk(saved_dataset_path)
     else:
