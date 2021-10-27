@@ -506,6 +506,45 @@ if __name__ == "__main__":
             repo_name = training_args.hub_model_id
         repo = Repository(training_args.output_dir, clone_from=repo_name)
 
+    # Load pretrained model and tokenizer
+
+    if model_args.tokenizer_name:
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_args.tokenizer_name, cache_dir=model_args.cache_dir, 
+            use_fast=model_args.use_fast_tokenizer
+        )
+    elif model_args.model_name_or_path:
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_args.model_name_or_path, cache_dir=model_args.cache_dir, 
+            use_fast=model_args.use_fast_tokenizer
+        )
+    else:
+        raise ValueError(
+            "You are instantiating a new tokenizer from scratch. This is not supported by this script."
+            "You can do it from another script, save it, and load it from here, using --tokenizer_name."
+        )
+
+    if model_args.config_name:
+        config = T5Config.from_pretrained(
+            model_args.config_name, cache_dir=model_args.cache_dir, vocab_size=len(tokenizer)
+        )
+    elif model_args.model_name_or_path:
+        config = T5Config.from_pretrained(
+            model_args.model_name_or_path, cache_dir=model_args.cache_dir, vocab_size=len(tokenizer)
+        )
+    else:
+        config = CONFIG_MAPPING[model_args.model_type]()
+        logger.warning("You are instantiating a new config instance from scratch.")
+
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Loading model from", model_args.model_name_or_path)
+    if model_args.model_name_or_path:
+        model = FlaxT5ForConditionalGeneration.from_pretrained(
+            model_args.model_name_or_path, config=config, 
+            seed=training_args.seed, from_pt=True, dtype=getattr(jnp, model_args.dtype)
+        )
+    else:
+        model = FlaxT5ForConditionalGeneration(config, seed=training_args.seed, dtype=getattr(jnp, model_args.dtype))
+        
 
 
     # Get the datasets: you can either provide your own CSV/JSON/TXT training and evaluation files (see below)
@@ -560,43 +599,6 @@ if __name__ == "__main__":
     # See more about loading any type of standard or custom dataset (from files, python dict, pandas DataFrame, etc) at
     # https://huggingface.co/docs/datasets/loading_datasets.html.
 
-    # Load pretrained model and tokenizer
-
-    if model_args.tokenizer_name:
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_args.tokenizer_name, cache_dir=model_args.cache_dir, use_fast=model_args.use_fast_tokenizer
-        )
-    elif model_args.model_name_or_path:
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_args.model_name_or_path, cache_dir=model_args.cache_dir, use_fast=model_args.use_fast_tokenizer
-        )
-    else:
-        raise ValueError(
-            "You are instantiating a new tokenizer from scratch. This is not supported by this script."
-            "You can do it from another script, save it, and load it from here, using --tokenizer_name."
-        )
-
-    if model_args.config_name:
-        config = T5Config.from_pretrained(
-            model_args.config_name, cache_dir=model_args.cache_dir, vocab_size=len(tokenizer)
-        )
-    elif model_args.model_name_or_path:
-        config = T5Config.from_pretrained(
-            model_args.model_name_or_path, cache_dir=model_args.cache_dir, vocab_size=len(tokenizer)
-        )
-    else:
-        config = CONFIG_MAPPING[model_args.model_type]()
-        logger.warning("You are instantiating a new config instance from scratch.")
-
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Loading model from", model_args.model_name_or_path)
-    if model_args.model_name_or_path:
-        model = FlaxT5ForConditionalGeneration.from_pretrained(
-            model_args.model_name_or_path, config=config, 
-            seed=training_args.seed, from_pt=True, dtype=getattr(jnp, model_args.dtype)
-        )
-    else:
-        model = FlaxT5ForConditionalGeneration(config, seed=training_args.seed, dtype=getattr(jnp, model_args.dtype))
-        
     # Preprocessing the datasets.
     # First we tokenize all the texts.
     if training_args.do_train:
