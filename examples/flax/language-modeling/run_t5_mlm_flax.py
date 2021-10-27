@@ -631,7 +631,7 @@ if __name__ == "__main__":
             load_from_cache_file=not data_args.overwrite_cache,
             cache_file_names = {"train": cached_dataset_path, "validation": cached_val_dataset_path}
         )    
-        tokenized_datasets.save_to_disk(saved_dataset_path)
+        # tokenized_datasets.save_to_disk(saved_dataset_path)
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP %%%%%%%%%%%%%%%%%%%%")
 
 
@@ -683,7 +683,7 @@ if __name__ == "__main__":
             load_from_cache_file=not data_args.overwrite_cache,
             cache_file_names = {"train": cached_dataset_path, "validation": cached_val_dataset_path}
         )
-        tokenized_datasets.save_to_disk(saved_dataset_path)
+        #tokenized_datasets.save_to_disk(saved_dataset_path)
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% After MAP 2 %%%%%%%%%%%%%%%%%%%%")
 
