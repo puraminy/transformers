@@ -864,7 +864,7 @@ if __name__ == "__main__":
             write_eval_metric(summary_writer, eval_metrics, cur_step)
         if training_args.do_eval:
             print("Exiting training ....")
-            return
+            
 
     
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before Training %%%%%%%%%%%%%%%%%%%%")
