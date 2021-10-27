@@ -472,7 +472,7 @@ if __name__ == "__main__":
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 4 %%%%%%%%%%%%%%%%%%%%")
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 5 %%%%%%%%%%%%%%%%%%%%")
     USE_TPU = False
     if training_args.no_cuda:
         # Google Colab "TPU" runtimes are configured in "2VM mode", meaning that JAX
@@ -536,7 +536,7 @@ if __name__ == "__main__":
         config = CONFIG_MAPPING[model_args.model_type]()
         logger.warning("You are instantiating a new config instance from scratch.")
 
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Loading model from", model_args.model_name_or_path)
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Load model from", model_args.model_name_or_path)
     if model_args.model_name_or_path:
         model = T5ForConditionalGeneration.from_pretrained(
             model_args.model_name_or_path, config=config, 
