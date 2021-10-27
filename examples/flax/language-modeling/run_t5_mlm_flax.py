@@ -834,6 +834,39 @@ if __name__ == "__main__":
     state = jax_utils.replicate(state)
 
     train_time = 0
+    
+    if True: #training_args.do_eval:
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Evaluation %%%%%%%%%%%%%%%%%%%%%%%%%")
+        # ======================== Evaluating ==============================
+        num_eval_samples = len(tokenized_datasets["validation"])
+        eval_samples_idx = jnp.arange(num_eval_samples)
+        eval_batch_idx = generate_batch_splits(eval_samples_idx, eval_batch_size)
+
+        eval_metrics = []
+        for i, batch_idx in enumerate(tqdm(eval_batch_idx, desc="Evaluating ...", position=2)):
+            samples = [tokenized_datasets["validation"][int(idx)] for idx in batch_idx]
+            model_inputs = data_collator(samples)
+
+            # Model forward
+            model_inputs = shard(model_inputs.data)
+            metrics = p_eval_step(state.params, model_inputs)
+            eval_metrics.append(metrics)
+
+        # get eval metrics
+        eval_metrics = get_metrics(eval_metrics)
+        eval_metrics = jax.tree_map(jnp.mean, eval_metrics)
+
+        # Update progress bar
+        epochs.write(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
+
+        # Save metrics
+        if has_tensorboard and jax.process_index() == 0:
+            write_eval_metric(summary_writer, eval_metrics, cur_step)
+        if training_args.do_eval:
+            print("Exiting training ....")
+            return
+
+    
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Before Training %%%%%%%%%%%%%%%%%%%%")
 
     epochs = tqdm(range(num_epochs), desc="Epoch ... ", position=0)
