@@ -538,7 +538,7 @@ if __name__ == "__main__":
 
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Load model from", model_args.model_name_or_path)
     if model_args.model_name_or_path:
-        model = T5ForConditionalGeneration.from_pretrained(
+        model = FlaxT5ForConditionalGeneration.from_pretrained(
             model_args.model_name_or_path, config=config, 
             seed=training_args.seed, dtype=getattr(jnp, model_args.dtype)
         )
@@ -882,7 +882,8 @@ if __name__ == "__main__":
 
                     train_metrics = []
 
-                if cur_step % training_args.eval_steps == 0 and cur_step > 0:
+                if ((cur_step % training_args.eval_steps == 0 and cur_step > 0) or 
+                    training_args.do_eval):
                     # ======================== Evaluating ==============================
                     num_eval_samples = len(tokenized_datasets["validation"])
                     eval_samples_idx = jnp.arange(num_eval_samples)
@@ -908,6 +909,9 @@ if __name__ == "__main__":
                     # Save metrics
                     if has_tensorboard and jax.process_index() == 0:
                         write_eval_metric(summary_writer, eval_metrics, cur_step)
+                    if training_args.do_eval:
+                        print("Exiting training ....")
+                        break
 
                 if cur_step % training_args.save_steps == 0 and cur_step > 0:
                     # save checkpoint after each epoch and push checkpoint to the hub
