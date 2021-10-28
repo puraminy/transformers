@@ -857,8 +857,10 @@ if __name__ == "__main__":
         eval_metrics = jax.tree_map(jnp.mean, eval_metrics)
 
         # Update progress bar
+        eval_info = {"step":cur_step}
+        eval_info.update(eval_metrics)
         with open(os.path.join(save_dir, "evaluation.json"), "w") as f:
-            json.dump({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']}, f)
+            json.dump(eval_info, f)
         
         print(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
 
