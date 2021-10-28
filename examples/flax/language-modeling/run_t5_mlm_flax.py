@@ -91,6 +91,10 @@ class ModelArguments:
     cache_dir: Optional[str] = field(
         default=None, metadata={"help": "Where do you want to store the pretrained models downloaded from s3"}
     )
+    eval_steps: Optional[int] = field(
+        default=None,
+        metadata={"help": "Number of steps for evaluation."},
+    )        
     use_fast_tokenizer: bool = field(
         default=True,
         metadata={"help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."},
@@ -838,7 +842,7 @@ if __name__ == "__main__":
     if True: #training_args.do_eval:
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Evaluation %%%%%%%%%%%%%%%%%%%%%%%%%")
         # ======================== Evaluating ==============================
-        num_eval_samples = 32_000 #len(tokenized_datasets["validation"])
+        num_eval_samples = model_args.eval_steps if model_args.eval_steps else len(tokenized_datasets["validation"])
         eval_samples_idx = jnp.arange(num_eval_samples)
         eval_batch_idx = generate_batch_splits(eval_samples_idx, eval_batch_size)
 
