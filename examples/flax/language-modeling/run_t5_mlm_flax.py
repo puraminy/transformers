@@ -895,7 +895,7 @@ if __name__ == "__main__":
         
         print("Eval Info:", eval_info)
         with open(os.path.join(model_args.model_name_or_path, "evaluation.json"), "w") as f:
-            json.dump(eval_info, f)
+            print(eval_info, file=f)
         
 
         # Save metrics
