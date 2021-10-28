@@ -838,7 +838,7 @@ if __name__ == "__main__":
     if True: #training_args.do_eval:
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Evaluation %%%%%%%%%%%%%%%%%%%%%%%%%")
         # ======================== Evaluating ==============================
-        num_eval_samples = len(tokenized_datasets["validation"])
+        num_eval_samples = 10_000 #len(tokenized_datasets["validation"])
         eval_samples_idx = jnp.arange(num_eval_samples)
         eval_batch_idx = generate_batch_splits(eval_samples_idx, eval_batch_size)
 
@@ -857,13 +857,16 @@ if __name__ == "__main__":
         eval_metrics = jax.tree_map(jnp.mean, eval_metrics)
 
         # Update progress bar
-        epochs.write(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
+        with open(os.path.join(save_dir, "evaluation.json"), "w") as f:
+            json.dump({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']}, f)
+        
+        print(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
 
         # Save metrics
         if has_tensorboard and jax.process_index() == 0:
             write_eval_metric(summary_writer, eval_metrics, cur_step)
         if training_args.do_eval:
-            print("Exiting training ....")
+            raise("Exiting training ....")
             
 
     
