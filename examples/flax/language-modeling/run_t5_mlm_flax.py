@@ -838,7 +838,7 @@ if __name__ == "__main__":
     if True: #training_args.do_eval:
         print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Evaluation %%%%%%%%%%%%%%%%%%%%%%%%%")
         # ======================== Evaluating ==============================
-        num_eval_samples = 10_000 #len(tokenized_datasets["validation"])
+        num_eval_samples = 32_000 #len(tokenized_datasets["validation"])
         eval_samples_idx = jnp.arange(num_eval_samples)
         eval_batch_idx = generate_batch_splits(eval_samples_idx, eval_batch_size)
 
@@ -857,7 +857,7 @@ if __name__ == "__main__":
         eval_metrics = jax.tree_map(jnp.mean, eval_metrics)
 
         # Update progress bar
-        eval_info = {"model":training_args.model_name_or_path, "step": resume_step}
+        eval_info = {"model":model_args.model_name_or_path, "step": resume_step}
         eval_info.update(eval_metrics)
         with open(os.path.join(training_args.model_name_or_path, "evaluation.json"), "w") as f:
             json.dump(eval_info, f)
