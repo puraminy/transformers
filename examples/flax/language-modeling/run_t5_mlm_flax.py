@@ -119,6 +119,13 @@ class DataTrainingArguments:
     dataset_config_name: Optional[str] = field(
         default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
     )
+    dataset_name_2: Optional[str] = field(
+        default=None, metadata={"help": "The name of the dataset to use (via the datasets library)."}
+    )
+    dataset_config_name_2: Optional[str] = field(
+        default=None, metadata={"help": "The configuration name of the dataset to use (via the datasets library)."}
+    )
+        
     train_file: Optional[str] = field(default=None, metadata={"help": "The input training data file (a text file)."})
     validation_file: Optional[str] = field(
         default=None,
@@ -476,7 +483,7 @@ if __name__ == "__main__":
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 5 %%%%%%%%%%%%%%%%%%%%")
+    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Start my ver 6 %%%%%%%%%%%%%%%%%%%%")
     USE_TPU = False
     if training_args.no_cuda:
         # Google Colab "TPU" runtimes are configured in "2VM mode", meaning that JAX
@@ -597,6 +604,26 @@ if __name__ == "__main__":
             datasets["train"] = load_dataset(
                 extension,
                 data_files=data_files,
+                split=f"train[{data_args.validation_split_percentage}%:]",
+                cache_dir=model_args.cache_dir,
+            )
+    # Dataset 2
+    if data_args.dataset_name_2 is not None:
+        # Downloading and loading a dataset from the hub.
+        datasets2 = load_dataset(data_args.dataset_name_2, 
+                                data_args.dataset_config_name_2, 
+                                cache_dir=model_args.cache_dir)
+
+        if "validation" not in datasets2.keys():
+            datasets2["validation"] = load_dataset(
+                data_args.dataset_name_2,
+                data_args.dataset_config_name_2,
+                split=f"train[:{data_args.validation_split_percentage}%]",
+                cache_dir=model_args.cache_dir,
+            )
+            datasets2["train"] = load_dataset(
+                data_args.dataset_name_2,
+                data_args.dataset_config_name_2,
                 split=f"train[{data_args.validation_split_percentage}%:]",
                 cache_dir=model_args.cache_dir,
             )
