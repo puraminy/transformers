@@ -888,12 +888,15 @@ if __name__ == "__main__":
         eval_metrics = jax.tree_map(jnp.mean, eval_metrics)
 
         # Update progress bar
-        eval_info = {"model":model_args.model_name_or_path, "step": resume_step}
+        eval_info = {"Model":model_args.model_name_or_path, 
+                     "Traing step": resume_step,
+                     "Eval steps": model_args.max_eval_steps}
         eval_info.update(eval_metrics)
-        with open(os.path.join(training_args.model_name_or_path, "evaluation.json"), "w") as f:
+        
+        print("Eval Info:", eval_info)
+        with open(os.path.join(model_args.model_name_or_path, "evaluation.json"), "w") as f:
             json.dump(eval_info, f)
         
-        print(f"Step... ({cur_step} | Loss: {eval_metrics['loss']}, Acc: {eval_metrics['accuracy']})")
 
         # Save metrics
         if has_tensorboard and jax.process_index() == 0:
